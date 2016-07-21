@@ -161,7 +161,7 @@ void PrintPos(char* G, int* StackG)
             push(StackG, i);
         }
      }
-     for(int i = 0; i < sizeof(StackG); i++)
+     for(int i = 0; i < pos; i++)
      {
          printf("%d\n", StackG[i]);
      }
