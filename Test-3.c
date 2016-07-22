@@ -1,7 +1,9 @@
 #include<stdio.h>
 #include<math.h>
 #include<stdbool.h>
-#define N 5
+#define N 2
+#define win N
+#define lose -N
 
 char map[N][N];
 
@@ -17,146 +19,128 @@ void readMap(){
 }
 
 // DFS run the game
-bool dfs(char map[N][N], int side, int round){
+bool dfs(int check_i, int check_j, int new_i, int new_j, char _map[N][N], int round){
 	/*
-		1. judge the O
-		2. judge the X
-		3. if no match, update map and play next round
+		1. judge the row
+		2. judge the column
+		3. if no side win, update map and play next round
 	*/
-
-	// Judge the O
-	bool isGetLine = false;
-	for(int row=0; row<N; row++){
-		if(row_check(matrix, row, round) == -5)
-			return false;
-	}
-	for(int col=0; col<N; col++){
-		if(col_check(matrix, col, round) == -5)
-			return false;
-	}
-	for(int x=0; x<N; x++){
-		if(x_check(matrix, x, round) == -5)
-			return false;
-	}
-	
-	// Judge the X
-	bool isGetLine = false;
-	for(int row=0; row<N; row++){
-		if(row_check(matrix, row, round) == 5)
-			return false;
-	}
-	for(int col=0; col<N; col++){
-		if(col_check(matrix, col, round) == 5)
-			return false;
-	}
-	for(int x=0; x<N; x++){
-		if(x_check(matrix, x, round) == 5)
-			return false;
-	}
-
-	// If no dot, return true
-	bool hasDot = false;
-	for(int i=0; i<N; i++)
-		for(int j=0; j<N; j++)
-			if(map[i][j]=='.')
-				hasDot = true;
-	if(!hasDot)
-		return true;
-
-	// else, recursive doing
-	for(int i=0; i<N; i++){
-		for(int j=0; j<N; j++){
-			if(map[i][j] == '.'){
-				char newMap[N][N];
-				newMap = map;
-				if(rount%2==0)
-					newMap[i][j] = 'x';
-				else
-					newMap[i][j] = 'o';
-				bfs()
-			}
+	int i, j, row, col, x, count;
+	if(_map[cor_i][cor_j] == '.'){
+		// Judge the row
+		count = 0;
+		for(row=0; row<N; row++){
+			if(_map[row][cor_j]=='o')
+				count++;
+			if(_map[row][cor_j]=='x')
+				count--;
 		}
+		if(count == win)
+			return false;
+		else if(count == lose)
+			return true;
+
+		// Judge the column
+		count = 0;
+		for(col=0; col<N; col++){
+			if(_map[cor_i][col]=='o')
+				count++;
+			if(_map[cor_i][col]=='x')
+				count--;
+		}
+		if(count == win)
+			return false;
+		else if(count == lose)
+			return true;
+
+		// Judge the diagonal
+		count = 0;
+		for(x=0; x<N; x++){
+			if(_map[x][x]=='o')
+				count++;
+			if(_map[x][x]=='x')
+				count--;
+		}
+		if(count == win)
+			return true;
+		else if(count == lose)
+			return false;
+		count = 0;
+		for(x=0; x<N; x++){
+			if(_map[x][N-x]=='o')
+				count++;
+			if(_map[x][N-x]=='x')
+				count--;
+		}
+		if(count == win)
+			return true;
+		else if(count == lose)
+			return false;
+
+		
+
+		// Update and recursive
+		// Assign the variable
+		char newMap[N][N];
+		int k, l;
+		for(k=0; k<N; k++){
+			for(l=0; l<N; l++)
+				newMap[k][l] = map[k][l];
+		}
+
+
+		if(round%2==0)
+			newMap[cor_i][cor_j] = 'x';
+		else
+			newMap[cor_i][cor_j] = 'o';
+
+		printf("new map:\n");
+		printMap(newMap);
+		for(i=0; i<N; i++){
+			for(j=0; j<N; j++){
+				if(!dfs(i, j, newMap, round+1))
+					return false;
+			}
+			return true;
+		}		
 	}
-	return false;
+
+	// Judge tie
+	bool isTie = true;
+	for(i=0; i<N; i++)
+		for(j=0; j<N; j++)
+			if(_map[i][j]=='.')
+				isTie = false;
+	return isTie;
 }
 
 // Print the map
-void printMap(){
+void printMap(char _map[N][N]){
 	int i, j;
 	for(i=0; i<N; i++){
 		for(j=0; j<N; j++)
-			printf("%c", map[i][j]);
+			printf("%c", _map[i][j]);
 		printf("\n");
 	}
 }
 
-// Check if the row is complete
-int row_check(char matrix[][N], int row, int round)
-{
-	int n_row=0;
-	for(int col=0; col<N; col++){
-		if(matrix[row][col]=='x'){
-				n_row++;
-		}
-		if(matrix[row][col]=='o'){
-				n_row--;
-		}
-	}
-	return n_row; 
-}
-
-// Check if the column is complete
-int col_check(char matrix[][N], int col)
-{
-	int n_col=0;
-	for(int row=0; row<N; row++){
-		if(matrix[row][col]=='x'){
-			n_col++;
-		}
-		if(matrix[row][col]=='o'){
-			n_col--;
-		}
-	}
-	return n_col;
-}
-
-// Check if the diagonal is complete
-int x_check(char matrix[][N], int x)
-{
-	int n_x=0;
-	if(x==1){
-		for(int r=0; r<N; r++){
-			if(matrix[r][r]=='x'){
-				n_x++;
-			}
-			if(matrix[r][r]=='o'){
-				n_x--;
-			}
-		}
-	}
-	else if(x==2){
-		for(int r=0; r<N; r++){
-			if(matrix[r][N-r]=='x'){
-				n_x++;
-			}
-			if(matrix[r][N-r]=='o'){
-				n_x--;
-			}
-		}
-	}
-	return n_x;
-}
-
 int main(){
 	FILE *fptr1, *fptr2;
+	int i, j;
 	freopen("movein.txt", "r", stdin);
 	//freopen("movein.txt", "w", stdout);
 
 	// read the map
 	readMap();
 
-	printMap();
+	printMap(map);
 
 	// recursive judge the game
-	dfs();
+	for(i=0; i<N; i++){
+		for(j=0; j<N; j++){
+			printf("do: (%d, %d)\n", i, j);
+			if(dfs(i, j, i, j, map, 0))
+				printf("win: (%d, %d)\n", i, j);
+		}
+	}
 }
